@@ -14,18 +14,21 @@ import com.example.yummynutrition.navigation.Screen
 import com.example.yummynutrition.ui.theme.md_theme_dark_background
 import com.example.yummynutrition.ui.theme.md_theme_dark_primary
 import com.example.yummynutrition.viewmodel.MainViewModel
+import com.example.yummynutrition.data.model.FoodItem
 
 @Composable
 fun HomeScreen(
     navController: NavController,
     viewModel: MainViewModel = viewModel()
 ) {
-    val nutrition by viewModel.nutrition.collectAsState()
+    val food: FoodItem? by viewModel.nutrition.collectAsState()
+    val foodName = food?.description?.uppercase() ?: "No food selected"
 
-    val totalCalories = nutrition.sumOf { it.calories }.toInt()
-    val protein = nutrition.sumOf { it.proteinG }.toInt()
-    val carbs = nutrition.sumOf { it.carbsG }.toInt()
-    val fats = nutrition.sumOf { it.fatTotalG }.toInt()
+
+    val totalCalories = food.nutrientValue("Energy").toInt()
+    val protein = food.nutrientValue("Protein").toInt()
+    val carbs = food.nutrientValue("Carbohydrate").toInt()
+    val fats = food.nutrientValue("Total lipid", "Fat").toInt()
 
     Column(
         modifier = Modifier
@@ -38,6 +41,12 @@ fun HomeScreen(
             text = "Today’s Nutrition Summary",
             color = Color.White,
             style = MaterialTheme.typography.headlineLarge
+        )
+
+        Text(
+            text = foodName,
+            style = MaterialTheme.typography.titleMedium,
+            color = Color.LightGray
         )
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -114,4 +123,11 @@ fun MacroBar(label: String, value: Int) {
         }
         Spacer(modifier = Modifier.height(12.dp))
     }
+}
+
+private fun FoodItem?.nutrientValue(vararg keys: String): Double {
+    val item = this ?: return 0.0
+    return item.foodNutrients
+        .firstOrNull { n -> keys.any { key -> n.nutrientName.contains(key, ignoreCase = true) } }
+        ?.value ?: 0.0
 }

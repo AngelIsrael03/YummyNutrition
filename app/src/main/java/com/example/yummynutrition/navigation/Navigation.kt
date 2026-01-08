@@ -5,14 +5,26 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material3.*
+import androidx.compose.material3.Icon
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.*
-import com.example.yummynutrition.ui.theme.screens.*
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+
+import com.example.yummynutrition.ui.theme.screens.HomeScreen
+import com.example.yummynutrition.ui.theme.screens.NutritionScreen
+import com.example.yummynutrition.ui.theme.screens.RecipeDetailScreen
+import com.example.yummynutrition.ui.theme.screens.RecipesScreen
+import com.example.yummynutrition.viewmodel.MainViewModel
 
 sealed class Screen(
     val route: String,
@@ -31,6 +43,9 @@ sealed class Screen(
 @Composable
 fun AppNavigation(navController: NavHostController) {
 
+    // ✅ Un solo ViewModel compartido por todas las pantallas
+    val mainViewModel: MainViewModel = viewModel()
+
     val items = listOf(
         Screen.Home,
         Screen.Recipes,
@@ -40,7 +55,7 @@ fun AppNavigation(navController: NavHostController) {
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = backStackEntry?.destination?.route
 
-    // 👇 NO mostrar BottomBar en detalle
+    // ✅ NO mostrar BottomBar en detalle
     val showBottomBar = items.any { it.route == currentRoute }
 
     Scaffold(
@@ -58,9 +73,7 @@ fun AppNavigation(navController: NavHostController) {
                                 }
                             },
                             icon = {
-                                screen.icon?.let {
-                                    Icon(it, contentDescription = screen.label)
-                                }
+                                screen.icon?.let { Icon(it, contentDescription = screen.label) }
                             },
                             label = { Text(screen.label) }
                         )
@@ -77,22 +90,23 @@ fun AppNavigation(navController: NavHostController) {
         ) {
 
             composable(Screen.Home.route) {
-                HomeScreen(navController)
+                HomeScreen(navController = navController, viewModel = mainViewModel)
             }
 
             composable(Screen.Recipes.route) {
-                RecipesScreen(navController)
+                RecipesScreen(navController = navController, viewModel = mainViewModel)
             }
 
             composable(Screen.Nutrition.route) {
-                NutritionScreen()
+                NutritionScreen(viewModel = mainViewModel)
             }
 
             composable(Screen.RecipeDetail.route) { backStack ->
                 val id = backStack.arguments?.getString("id") ?: ""
                 RecipeDetailScreen(
                     id = id,
-                    navController = navController
+                    navController = navController,
+                    viewModel = mainViewModel
                 )
             }
         }

@@ -2,7 +2,7 @@ package com.example.yummynutrition.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.yummynutrition.data.model.NutritionItem
+import com.example.yummynutrition.data.model.FoodItem
 import com.example.yummynutrition.data.model.RecipeItem
 import com.example.yummynutrition.data.repository.AppRepository
 import kotlinx.coroutines.flow.MutableStateFlow

@@ -35,7 +35,7 @@ fun HomeScreen(
     ) {
 
         Text(
-            text = "Today’s Nutrition",
+            text = "Today’s Nutrition Summary",
             color = Color.White,
             style = MaterialTheme.typography.headlineLarge
         )
@@ -67,7 +67,7 @@ fun HomeScreen(
         Spacer(modifier = Modifier.height(24.dp))
 
         Text(
-            "Macronutrients",
+            "Macronutrient Breakdown",
             color = Color.White,
             style = MaterialTheme.typography.titleMedium
         )
@@ -86,11 +86,11 @@ fun HomeScreen(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(14.dp)
         ) {
-            Text("Search Recipes", color = Color.Black)
+            Text("Explore Healthy Recipes", color = Color.Black)
         }
     }
 }
-
+// Home screen that displays the daily nutrition summary
 @Composable
 fun MacroBar(label: String, value: Int) {
     val progress = (value / 200f).coerceIn(0f, 1f)

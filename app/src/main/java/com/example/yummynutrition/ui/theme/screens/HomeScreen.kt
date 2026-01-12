@@ -7,35 +7,62 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.yummynutrition.data.model.FoodItem
+import com.example.yummynutrition.data.prefs.UserPrefs
 import com.example.yummynutrition.navigation.Screen
 import com.example.yummynutrition.ui.theme.md_theme_dark_background
 import com.example.yummynutrition.ui.theme.md_theme_dark_primary
 import com.example.yummynutrition.viewmodel.MainViewModel
-import com.example.yummynutrition.data.model.FoodItem
+import kotlinx.coroutines.launch
 
 @Composable
 fun HomeScreen(
     navController: NavController,
     viewModel: MainViewModel = viewModel()
 ) {
-    val food: FoodItem? by viewModel.nutrition.collectAsState()
-    val foodName = food?.description?.uppercase() ?: "No food selected"
+    // --- Nombre guardado (DataStore) ---
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
 
+    val savedName by UserPrefs.nameFlow(context).collectAsState(initial = "")
+    var showNameDialog by remember { mutableStateOf(false) }
+    var nameInput by remember { mutableStateOf("") }
+
+    LaunchedEffect(savedName) {
+        showNameDialog = savedName.isBlank()
+        if (savedName.isBlank()) nameInput = ""
+    }
+
+    // --- Tu lógica actual (NO la tocamos) ---
+    val food: FoodItem? by viewModel.nutrition.collectAsState()
+
+    val foodName = food?.description?.uppercase() ?: "No food selected"
 
     val totalCalories = food.nutrientValue("Energy").toInt()
     val protein = food.nutrientValue("Protein").toInt()
     val carbs = food.nutrientValue("Carbohydrate").toInt()
     val fats = food.nutrientValue("Total lipid", "Fat").toInt()
 
+    // --- UI ---
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(md_theme_dark_background)
             .padding(20.dp)
     ) {
+
+        // ✅ Saludo
+        Text(
+            text = if (savedName.isNotBlank()) "Hola, $savedName 👋" else "Hola 👋",
+            color = Color.White,
+            style = MaterialTheme.typography.headlineMedium
+        )
+
+        Spacer(modifier = Modifier.height(10.dp))
 
         Text(
             text = "Today’s Nutrition Summary",
@@ -98,7 +125,36 @@ fun HomeScreen(
             Text("Explore Healthy Recipes", color = Color.Black)
         }
     }
+
+    // ✅ Diálogo (solo si no hay nombre guardado)
+    if (showNameDialog) {
+        val clean = nameInput.trim()
+
+        AlertDialog(
+            onDismissRequest = { /* no cerrar tocando fuera */ },
+            title = { Text("¿Cómo te llamas?") },
+            text = {
+                OutlinedTextField(
+                    value = nameInput,
+                    onValueChange = { nameInput = it },
+                    singleLine = true,
+                    label = { Text("Nombre") }
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        scope.launch { UserPrefs.setName(context, clean) }
+                    },
+                    enabled = clean.isNotBlank()
+                ) {
+                    Text("Guardar")
+                }
+            }
+        )
+    }
 }
+
 // Home screen that displays the daily nutrition summary
 @Composable
 fun MacroBar(label: String, value: Int) {

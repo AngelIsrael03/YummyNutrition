@@ -19,7 +19,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
-
+import com.example.yummynutrition.ui.theme.screens.WelcomeScreen
 import com.example.yummynutrition.ui.theme.screens.HomeScreen
 import com.example.yummynutrition.ui.theme.screens.NutritionScreen
 import com.example.yummynutrition.ui.theme.screens.RecipeDetailScreen
@@ -31,9 +31,12 @@ sealed class Screen(
     val label: String,
     val icon: ImageVector?
 ) {
+    object Welcome : Screen("welcome", "Welcome", null)
+
     object Home : Screen("home", "Home", Icons.Default.Home)
     object Recipes : Screen("recipes", "Recipes", Icons.Default.Search)
     object Nutrition : Screen("nutrition", "Nutrition", Icons.Default.Star)
+
 
     object RecipeDetail : Screen("recipe_detail/{id}", "Detail", null) {
         fun createRoute(id: String) = "recipe_detail/$id"
@@ -85,9 +88,13 @@ fun AppNavigation(navController: NavHostController) {
 
         NavHost(
             navController = navController,
-            startDestination = Screen.Home.route,
+            startDestination = Screen.Welcome.route,
             modifier = Modifier.padding(padding)
         ) {
+
+            composable(Screen.Welcome.route) {
+                WelcomeScreen(navController = navController)
+            }
 
             composable(Screen.Home.route) {
                 HomeScreen(navController = navController, viewModel = mainViewModel)
@@ -110,5 +117,7 @@ fun AppNavigation(navController: NavHostController) {
                 )
             }
         }
+
     }
 }
+

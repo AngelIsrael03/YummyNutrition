@@ -32,10 +32,12 @@ fun HomeScreen(
     var showNameDialog by remember { mutableStateOf(false) }
     var nameInput by remember { mutableStateOf("") }
 
-    LaunchedEffect(savedName) {
-        showNameDialog = savedName.isBlank()
-        if (savedName.isBlank()) nameInput = ""
+    LaunchedEffect(Unit) {
+        if (savedName.isBlank()) {
+            showNameDialog = true
+        }
     }
+
 
     // --- Tu lógica actual (NO la tocamos) ---
     val food: FoodItem? by viewModel.nutrition.collectAsState()
@@ -144,12 +146,17 @@ fun HomeScreen(
             confirmButton = {
                 Button(
                     onClick = {
-                        scope.launch { UserPrefs.setName(context, clean) }
+                        showNameDialog = false   // 👈 cerrar primero
+
+                        scope.launch {
+                            UserPrefs.setName(context, clean)
+                        }
                     },
                     enabled = clean.isNotBlank()
                 ) {
                     Text("Guardar")
                 }
+
             }
         )
     }

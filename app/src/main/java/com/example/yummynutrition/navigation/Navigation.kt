@@ -15,7 +15,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.*
 import com.example.yummynutrition.ui.theme.screens.*
 import com.example.yummynutrition.viewmodel.MainViewModel
-import com.example.yummynutrition.ui.theme.MealsScreen
+import com.example.yummynutrition.ui.theme.Meals
 import com.example.yummynutrition.ui.theme.screens.HomeScreen
 import com.example.yummynutrition.ui.theme.screens.RecipesScreen
 import com.example.yummynutrition.ui.theme.screens.NutritionScreen
@@ -124,7 +124,7 @@ fun AppNavigation(navController: NavHostController) {
 
             // 🔹 Meals (configuración de comidas)
             composable(Screen.Meals.route) {
-                MealsScreen()
+                Meals()
             }
 
             // 🔹 Detalle receta

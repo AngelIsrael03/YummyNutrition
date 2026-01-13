@@ -18,6 +18,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.yummynutrition.navigation.Screen
+import com.example.yummynutrition.ui.theme.md_theme_light_background
+import com.example.yummynutrition.ui.theme.md_theme_light_primary
+import com.example.yummynutrition.ui.theme.md_theme_light_secondary
 import com.example.yummynutrition.viewmodel.MainViewModel
 
 @Composable
@@ -37,9 +40,16 @@ fun RecipesScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF111111))
+            .background(md_theme_light_background)
             .padding(16.dp)
     ) {
+
+        Text(
+            text = "Buscar Recetas",
+            style = MaterialTheme.typography.headlineMedium,
+            color = Color(0xFF1C1C1C),
+            modifier = Modifier.padding(bottom = 12.dp)
+        )
 
         OutlinedTextField(
             value = search,
@@ -47,11 +57,11 @@ fun RecipesScreen(
             label = { Text("Search recipes") },
             modifier = Modifier.fillMaxWidth(),
             colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Color(0xFFFF9300),
-                focusedLabelColor = Color(0xFFFF9300),
-                cursorColor = Color(0xFFFF9300),
-                unfocusedBorderColor = Color.Gray,
-                unfocusedLabelColor = Color.Gray
+                focusedBorderColor = md_theme_light_primary,
+                focusedLabelColor = md_theme_light_primary,
+                cursorColor = md_theme_light_primary,
+                unfocusedBorderColor = Color(0xFFBDBDBD),
+                unfocusedLabelColor = Color(0xFF9E9E9E)
             )
         )
 
@@ -90,7 +100,8 @@ fun RecipeCard(
             .padding(8.dp)
             .clickable { onClick() },
         shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF1A1A1A))
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Column {
 
@@ -106,7 +117,7 @@ fun RecipeCard(
             Column(modifier = Modifier.padding(12.dp)) {
                 Text(
                     text = title,
-                    color = Color.White,
+                    color = Color(0xFF1C1C1C),
                     style = MaterialTheme.typography.bodyLarge
                 )
             }

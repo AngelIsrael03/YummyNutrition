@@ -6,6 +6,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Restaurant
 import androidx.compose.material3.*
+import androidx.compose.ui.draw.shadow
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -16,8 +17,9 @@ import androidx.navigation.NavController
 import com.example.yummynutrition.data.model.FoodItem
 import com.example.yummynutrition.data.prefs.UserPrefs
 import com.example.yummynutrition.navigation.Screen
-import com.example.yummynutrition.ui.theme.md_theme_dark_background
-import com.example.yummynutrition.ui.theme.md_theme_dark_primary
+import com.example.yummynutrition.ui.theme.md_theme_light_background
+import com.example.yummynutrition.ui.theme.md_theme_light_primary
+import com.example.yummynutrition.ui.theme.md_theme_light_secondary
 import com.example.yummynutrition.viewmodel.MainViewModel
 import kotlinx.coroutines.launch
 
@@ -50,7 +52,7 @@ fun HomeScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(md_theme_dark_background)
+            .background(md_theme_light_background)
             .padding(20.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
@@ -59,33 +61,35 @@ fun HomeScreen(
         Text(
             text = if (savedName.isNotBlank()) "Hola, $savedName 👋" else "Hola 👋",
             style = MaterialTheme.typography.headlineMedium,
-            color = Color.White
+            color = Color(0xFF1C1C1C)
         )
 
         Text(
             text = "Tu resumen nutricional de hoy",
-            color = Color.LightGray
+            color = Color(0xFF616161)
         )
 
         // 🔥 TARJETA PRINCIPAL
         Card(
-            colors = CardDefaults.cardColors(containerColor = Color(0xFF1A1A1A)),
+            colors = CardDefaults.cardColors(containerColor = Color.White),
             shape = RoundedCornerShape(28.dp),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .shadow(elevation = 4.dp, shape = RoundedCornerShape(28.dp))
         ) {
             Column(
                 modifier = Modifier.padding(24.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Text("CALORÍAS TOTALES", color = Color(0xFFB0B0B0))
+                Text("CALORÍAS TOTALES", color = Color(0xFF9E9E9E))
                 Text(
                     "$totalCalories kcal",
                     style = MaterialTheme.typography.headlineLarge,
-                    color = md_theme_dark_primary
+                    color = md_theme_light_primary
                 )
                 Text(
                     foodName,
-                    color = Color.LightGray,
+                    color = Color(0xFF757575),
                     style = MaterialTheme.typography.labelLarge
                 )
             }
@@ -93,9 +97,11 @@ fun HomeScreen(
 
         // 🔥 MACROS
         Card(
-            colors = CardDefaults.cardColors(containerColor = Color(0xFF151515)),
+            colors = CardDefaults.cardColors(containerColor = Color.White),
             shape = RoundedCornerShape(24.dp),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .shadow(elevation = 2.dp, shape = RoundedCornerShape(24.dp))
         ) {
             Column(
                 modifier = Modifier.padding(20.dp),
@@ -104,12 +110,12 @@ fun HomeScreen(
                 Text(
                     "Macronutrientes",
                     style = MaterialTheme.typography.titleMedium,
-                    color = Color.White
+                    color = Color(0xFF1C1C1C)
                 )
 
-                MacroBar("Proteína", protein)
-                MacroBar("Carbohidratos", carbs)
-                MacroBar("Grasas", fats)
+                MacroBar("Proteína", protein, md_theme_light_primary)
+                MacroBar("Carbohidratos", carbs, md_theme_light_secondary)
+                MacroBar("Grasas", fats, Color(0xFFFF9800))
             }
         }
 
@@ -117,7 +123,7 @@ fun HomeScreen(
         Card(
             onClick = { navController.navigate(Screen.Meals.route) },
             shape = RoundedCornerShape(22.dp),
-            colors = CardDefaults.cardColors(containerColor = md_theme_dark_primary),
+            colors = CardDefaults.cardColors(containerColor = md_theme_light_primary),
             modifier = Modifier.fillMaxWidth()
         ) {
             Row(
@@ -127,11 +133,11 @@ fun HomeScreen(
                 Icon(
                     Icons.Default.Restaurant,
                     contentDescription = null,
-                    tint = Color.Black
+                    tint = Color.White
                 )
                 Text(
                     "Configurar mis comidas",
-                    color = Color.Black,
+                    color = Color.White,
                     style = MaterialTheme.typography.titleMedium
                 )
             }
@@ -140,7 +146,7 @@ fun HomeScreen(
         // 🔥 RECETAS
         Button(
             onClick = { navController.navigate(Screen.Recipes.route) },
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2A2A2A)),
+            colors = ButtonDefaults.buttonColors(containerColor = md_theme_light_secondary),
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(16.dp)
         ) {
@@ -178,25 +184,25 @@ fun HomeScreen(
     }
 }
 
-// 🔹 MacroBar
+// 🔹 MacroBar mejorada
 @Composable
-fun MacroBar(label: String, value: Int) {
+fun MacroBar(label: String, value: Int, barColor: Color) {
     val progress = (value / 200f).coerceIn(0f, 1f)
 
     Column {
-        Text(label, color = Color(0xFFECECEC))
+        Text(label, color = Color(0xFF424242))
         Spacer(modifier = Modifier.height(6.dp))
         Box(
             modifier = Modifier
                 .height(14.dp)
                 .fillMaxWidth()
-                .background(Color(0xFF2A2A2A), RoundedCornerShape(12.dp))
+                .background(Color(0xFFEEEEEE), RoundedCornerShape(12.dp))
         ) {
             Box(
                 modifier = Modifier
                     .height(14.dp)
                     .fillMaxWidth(progress)
-                    .background(md_theme_dark_primary, RoundedCornerShape(12.dp))
+                    .background(barColor, RoundedCornerShape(12.dp))
             )
         }
     }

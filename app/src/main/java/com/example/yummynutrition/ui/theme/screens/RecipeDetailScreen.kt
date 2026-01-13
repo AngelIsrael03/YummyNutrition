@@ -4,6 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -14,9 +15,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
+import com.example.yummynutrition.ui.theme.md_theme_light_background
+import com.example.yummynutrition.ui.theme.md_theme_light_primary
 import com.example.yummynutrition.viewmodel.MainViewModel
 
 @Composable
@@ -33,10 +37,12 @@ fun RecipeDetailScreen(
 
     if (recipe == null) {
         Box(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .background(md_theme_light_background),
             contentAlignment = Alignment.Center
         ) {
-            CircularProgressIndicator()
+            CircularProgressIndicator(color = md_theme_light_primary)
         }
         return
     }
@@ -46,7 +52,7 @@ fun RecipeDetailScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF111111))
+            .background(md_theme_light_background)
             .verticalScroll(rememberScrollState())
             .padding(16.dp)
     ) {
@@ -56,31 +62,58 @@ fun RecipeDetailScreen(
             Icon(
                 imageVector = Icons.Default.ArrowBack,
                 contentDescription = "Back",
-                tint = Color.White
+                tint = md_theme_light_primary
             )
         }
 
-        Image(
-            painter = rememberAsyncImagePainter(meal.image),
-            contentDescription = meal.name,
+        Card(
+            shape = RoundedCornerShape(16.dp),
             modifier = Modifier
                 .fillMaxWidth()
-                .height(260.dp),
-            contentScale = ContentScale.Crop
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
+                .padding(bottom = 16.dp),
+            colors = CardDefaults.cardColors(containerColor = Color.White),
+            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        ) {
+            Image(
+                painter = rememberAsyncImagePainter(meal.image),
+                contentDescription = meal.name,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(260.dp),
+                contentScale = ContentScale.Crop
+            )
+        }
 
         Text(
             meal.name,
-            color = Color.White,
-            style = MaterialTheme.typography.headlineLarge
+            color = Color(0xFF1C1C1C),
+            style = MaterialTheme.typography.headlineLarge,
+            modifier = Modifier.padding(bottom = 12.dp)
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text("Instructions", color = Color.White)
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(meal.instructions, color = Color.LightGray)
+        Card(
+            shape = RoundedCornerShape(14.dp),
+            colors = CardDefaults.cardColors(containerColor = Color.White),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text(
+                    "Instrucciones",
+                    color = md_theme_light_primary,
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+                Text(
+                    meal.instructions,
+                    color = Color(0xFF424242),
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        lineHeight = 24.sp
+                    )
+                )
+            }
+        }
     }
 }

@@ -21,7 +21,7 @@ fun WelcomeScreen(navController: NavController) {
     ) {
 
         Text(
-            text = "Bienvenido a",
+            text = "Welcome to",
             style = MaterialTheme.typography.headlineSmall
         )
 
@@ -40,7 +40,7 @@ fun WelcomeScreen(navController: NavController) {
             },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Comenzar")
+            Text("Start")
         }
     }
 }

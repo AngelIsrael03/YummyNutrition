@@ -30,15 +30,8 @@ fun HomeScreen(
 ) {
     // --- Nombre guardado ---
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
 
     val savedName by UserPrefs.nameFlow(context).collectAsState(initial = "")
-    var showNameDialog by remember { mutableStateOf(false) }
-    var nameInput by remember { mutableStateOf("") }
-
-    LaunchedEffect(Unit) {
-        if (savedName.isBlank()) showNameDialog = true
-    }
 
     // --- Datos nutricionales ---
     val food: FoodItem? by viewModel.nutrition.collectAsState()
@@ -59,13 +52,13 @@ fun HomeScreen(
 
         // 🔥 HEADER
         Text(
-            text = if (savedName.isNotBlank()) "Hola, $savedName 👋" else "Hola 👋",
+            text = if (savedName.isNotBlank()) "Hello, $savedName 👋" else "Hello 👋",
             style = MaterialTheme.typography.headlineMedium,
             color = Color(0xFF1C1C1C)
         )
 
         Text(
-            text = "Tu resumen nutricional de hoy",
+            text = "Your nutritional summary today",
             color = Color(0xFF616161)
         )
 
@@ -81,7 +74,7 @@ fun HomeScreen(
                 modifier = Modifier.padding(24.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Text("CALORÍAS TOTALES", color = Color(0xFF9E9E9E))
+                Text("TOTAL CALORIES", color = Color(0xFF9E9E9E))
                 Text(
                     "$totalCalories kcal",
                     style = MaterialTheme.typography.headlineLarge,
@@ -108,14 +101,14 @@ fun HomeScreen(
                 verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
                 Text(
-                    "Macronutrientes",
+                    "Macronutrients",
                     style = MaterialTheme.typography.titleMedium,
                     color = Color(0xFF1C1C1C)
                 )
 
-                MacroBar("Proteína", protein, md_theme_light_primary)
-                MacroBar("Carbohidratos", carbs, md_theme_light_secondary)
-                MacroBar("Grasas", fats, Color(0xFFFF9800))
+                MacroBar("Protein", protein, md_theme_light_primary)
+                MacroBar("Carbohydrates", carbs, md_theme_light_secondary)
+                MacroBar("Fats", fats, Color(0xFFFF9800))
             }
         }
 
@@ -136,7 +129,7 @@ fun HomeScreen(
                     tint = Color.White
                 )
                 Text(
-                    "Configurar mis comidas",
+                    "Configure my meals",
                     color = Color.White,
                     style = MaterialTheme.typography.titleMedium
                 )
@@ -150,37 +143,17 @@ fun HomeScreen(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(16.dp)
         ) {
-            Text("Explorar recetas saludables", color = Color.White)
+            Text("Explore healthy recipes", color = Color.White)
         }
-    }
 
-    // 🔹 Diálogo nombre
-    if (showNameDialog) {
-        val clean = nameInput.trim()
-
-        AlertDialog(
-            onDismissRequest = {},
-            title = { Text("¿Cómo te llamas?") },
-            text = {
-                OutlinedTextField(
-                    value = nameInput,
-                    onValueChange = { nameInput = it },
-                    label = { Text("Nombre") },
-                    singleLine = true
-                )
-            },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        showNameDialog = false
-                        scope.launch { UserPrefs.setName(context, clean) }
-                    },
-                    enabled = clean.isNotBlank()
-                ) {
-                    Text("Guardar")
-                }
-            }
-        )
+        Button(
+            onClick = { navController.navigate(Screen.Nutrition.route) },
+            colors = ButtonDefaults.buttonColors(containerColor = md_theme_light_secondary),
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(16.dp)
+        ) {
+            Text("Search nutrition info", color = Color.White)
+        }
     }
 }
 

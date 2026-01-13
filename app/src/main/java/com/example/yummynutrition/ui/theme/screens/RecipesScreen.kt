@@ -45,7 +45,7 @@ fun RecipesScreen(
     ) {
 
         Text(
-            text = "Buscar Recetas",
+            text = "Recipes",
             style = MaterialTheme.typography.headlineMedium,
             color = Color(0xFF1C1C1C),
             modifier = Modifier.padding(bottom = 12.dp)

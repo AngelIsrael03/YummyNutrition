@@ -6,13 +6,14 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.*
+import com.example.yummynutrition.data.prefs.UserPrefs
 import com.example.yummynutrition.ui.theme.screens.*
 import com.example.yummynutrition.viewmodel.MainViewModel
 import com.example.yummynutrition.ui.theme.Meals
@@ -30,6 +31,7 @@ sealed class Screen(
     val icon: ImageVector?
 ) {
     object Splash : Screen("splash", "", null)
+    object Name : Screen("name", "", null)
     object Welcome : Screen("welcome", "", null)
     object Home : Screen("home", "Home", Icons.Default.Home)
     object Recipes : Screen("recipes", "Recipes", Icons.Default.Search)
@@ -46,6 +48,10 @@ fun AppNavigation(navController: NavHostController) {
 
     // ✅ ViewModel compartido
     val mainViewModel: MainViewModel = viewModel()
+
+    // 🔹 Verificar si hay nombre guardado
+    val context = LocalContext.current
+    val savedName by UserPrefs.nameFlow(context).collectAsState(initial = "")
 
     // 🔹 Pantallas con BottomBar
     val bottomBarScreens = listOf(
@@ -68,7 +74,7 @@ fun AppNavigation(navController: NavHostController) {
                             selected = currentRoute == screen.route,
                             onClick = {
                                 navController.navigate(screen.route) {
-                                    popUpTo(Screen.Home.route) { saveState = true }
+                                    popUpTo(navController.graph.startDestinationId) { saveState = true }
                                     launchSingleTop = true
                                     restoreState = true
                                 }
@@ -104,8 +110,23 @@ fun AppNavigation(navController: NavHostController) {
             // 🔹 Welcome (Bienvenida)
             composable(Screen.Welcome.route) {
                 WelcomeScreen {
-                    navController.navigate(Screen.Home.route) {
+                    // Si hay nombre, va a Home. Si no, va a NameScreen
+                    val nextRoute = if (savedName.isBlank()) {
+                        Screen.Name.route
+                    } else {
+                        Screen.Home.route
+                    }
+                    navController.navigate(nextRoute) {
                         popUpTo(Screen.Welcome.route) { inclusive = true }
+                    }
+                }
+            }
+
+            // 🔹 NameScreen (Pedir nombre)
+            composable(Screen.Name.route) {
+                NameScreen {
+                    navController.navigate(Screen.Home.route) {
+                        popUpTo(Screen.Name.route) { inclusive = true }
                     }
                 }
             }

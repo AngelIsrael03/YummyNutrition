@@ -33,7 +33,7 @@ fun NutritionScreen(
     ) {
 
         Text(
-            text = "Buscar Nutrición",
+            text = "Nutrition",
             style = MaterialTheme.typography.headlineMedium,
             color = Color(0xFF1C1C1C),
             modifier = Modifier.padding(bottom = 16.dp)

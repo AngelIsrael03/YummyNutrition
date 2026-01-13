@@ -134,7 +134,7 @@ fun WelcomeScreen(onStartClick: () -> Unit) {
             enter = slideInVertically(initialOffsetY = { -it }) + fadeIn()
         ) {
             Text(
-                text = "Tu camino hacia una vida saludable",
+                text = "Your path to a healthy life",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = YummiColors.DarkText,
@@ -164,7 +164,7 @@ fun WelcomeScreen(onStartClick: () -> Unit) {
                 shape = androidx.compose.foundation.shape.RoundedCornerShape(14.dp)
             ) {
                 Text(
-                    text = "Comenzar",
+                    text = "Start",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = Color.White,

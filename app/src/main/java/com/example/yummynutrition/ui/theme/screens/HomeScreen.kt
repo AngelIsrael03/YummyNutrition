@@ -1,14 +1,27 @@
 package com.example.yummynutrition.ui.theme.screens
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Restaurant
-import androidx.compose.material3.*
-import androidx.compose.ui.draw.shadow
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -21,26 +34,19 @@ import com.example.yummynutrition.ui.theme.md_theme_light_background
 import com.example.yummynutrition.ui.theme.md_theme_light_primary
 import com.example.yummynutrition.ui.theme.md_theme_light_secondary
 import com.example.yummynutrition.viewmodel.MainViewModel
-import kotlinx.coroutines.launch
 
 @Composable
 fun HomeScreen(
     navController: NavController,
     viewModel: MainViewModel = viewModel()
 ) {
-    // --- Nombre guardado ---
     val context = LocalContext.current
-
     val savedName by UserPrefs.nameFlow(context).collectAsState(initial = "")
-
-    // --- Datos nutricionales ---
-    val food: FoodItem? by viewModel.nutrition.collectAsState()
-
-    val foodName = food?.description?.uppercase() ?: "NO FOOD SELECTED"
-    val totalCalories = food.nutrientValue("Energy").toInt()
-    val protein = food.nutrientValue("Protein").toInt()
-    val carbs = food.nutrientValue("Carbohydrate").toInt()
-    val fats = food.nutrientValue("Total lipid", "Fat").toInt()
+    val cart by viewModel.cart.collectAsState()
+    val totalCalories = viewModel.getCartTotalCalories()
+    val totalProtein = viewModel.getCartTotalProtein()
+    val totalCarbs = viewModel.getCartTotalCarbs()
+    val totalFats = viewModel.getCartTotalFats()
 
     Column(
         modifier = Modifier
@@ -50,7 +56,6 @@ fun HomeScreen(
         verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
 
-        // 🔥 HEADER
         Text(
             text = if (savedName.isNotBlank()) "Hello, $savedName 👋" else "Hello 👋",
             style = MaterialTheme.typography.headlineMedium,
@@ -62,7 +67,6 @@ fun HomeScreen(
             color = Color(0xFF616161)
         )
 
-        // 🔥 TARJETA PRINCIPAL
         Card(
             colors = CardDefaults.cardColors(containerColor = Color.White),
             shape = RoundedCornerShape(28.dp),
@@ -74,21 +78,20 @@ fun HomeScreen(
                 modifier = Modifier.padding(24.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Text("TOTAL CALORIES", color = Color(0xFF9E9E9E))
+                Text("TODAY'S CALORIES", color = Color(0xFF9E9E9E))
                 Text(
                     "$totalCalories kcal",
                     style = MaterialTheme.typography.headlineLarge,
                     color = md_theme_light_primary
                 )
                 Text(
-                    foodName,
+                    "${cart.size} items in cart",
                     color = Color(0xFF757575),
                     style = MaterialTheme.typography.labelLarge
                 )
             }
         }
 
-        // 🔥 MACROS
         Card(
             colors = CardDefaults.cardColors(containerColor = Color.White),
             shape = RoundedCornerShape(24.dp),
@@ -106,37 +109,38 @@ fun HomeScreen(
                     color = Color(0xFF1C1C1C)
                 )
 
-                MacroBar("Protein", protein, md_theme_light_primary)
-                MacroBar("Carbohydrates", carbs, md_theme_light_secondary)
-                MacroBar("Fats", fats, Color(0xFFFF9800))
+                MacroBar("Protein", totalProtein, md_theme_light_primary)
+                MacroBar("Carbohydrates", totalCarbs, md_theme_light_secondary)
+                MacroBar("Fats", totalFats, Color(0xFFFF9800))
             }
         }
 
-        // 🔥 CONFIGURAR COMIDAS
         Card(
-            onClick = { navController.navigate(Screen.Meals.route) },
+            onClick = { navController.navigate(Screen.Cart.route) },
             shape = RoundedCornerShape(22.dp),
-            colors = CardDefaults.cardColors(containerColor = md_theme_light_primary),
+            colors = CardDefaults.cardColors(containerColor = Color(0xFFFFC107)),
             modifier = Modifier.fillMaxWidth()
         ) {
             Row(
-                modifier = Modifier.padding(18.dp),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
+                modifier = Modifier
+                    .padding(18.dp)
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(
-                    Icons.Default.Restaurant,
-                    contentDescription = null,
-                    tint = Color.White
+                Text(
+                    "My Food Intake",
+                    color = Color.Black,
+                    style = MaterialTheme.typography.titleMedium
                 )
                 Text(
-                    "Configure my meals",
-                    color = Color.White,
-                    style = MaterialTheme.typography.titleMedium
+                    "${cart.size}",
+                    color = Color.Black,
+                    style = MaterialTheme.typography.headlineSmall
                 )
             }
         }
 
-        // 🔥 RECETAS
         Button(
             onClick = { navController.navigate(Screen.Recipes.route) },
             colors = ButtonDefaults.buttonColors(containerColor = md_theme_light_secondary),
@@ -148,7 +152,7 @@ fun HomeScreen(
 
         Button(
             onClick = { navController.navigate(Screen.Nutrition.route) },
-            colors = ButtonDefaults.buttonColors(containerColor = md_theme_light_secondary),
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(16.dp)
         ) {
@@ -157,7 +161,6 @@ fun HomeScreen(
     }
 }
 
-// 🔹 MacroBar mejorada
 @Composable
 fun MacroBar(label: String, value: Int, barColor: Color) {
     val progress = (value / 200f).coerceIn(0f, 1f)
@@ -165,13 +168,13 @@ fun MacroBar(label: String, value: Int, barColor: Color) {
     Column {
         Text(label, color = Color(0xFF424242))
         Spacer(modifier = Modifier.height(6.dp))
-        Box(
+        Row(
             modifier = Modifier
                 .height(14.dp)
                 .fillMaxWidth()
                 .background(Color(0xFFEEEEEE), RoundedCornerShape(12.dp))
         ) {
-            Box(
+            Spacer(
                 modifier = Modifier
                     .height(14.dp)
                     .fillMaxWidth(progress)
@@ -181,7 +184,6 @@ fun MacroBar(label: String, value: Int, barColor: Color) {
     }
 }
 
-// 🔹 Helper
 private fun FoodItem?.nutrientValue(vararg keys: String): Double {
     val item = this ?: return 0.0
     return item.foodNutrients

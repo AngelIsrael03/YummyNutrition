@@ -36,6 +36,7 @@ sealed class Screen(
     object Home : Screen("home", "Home", Icons.Default.Home)
     object Recipes : Screen("recipes", "Recipes", Icons.Default.Search)
     object Nutrition : Screen("nutrition", "Nutrition", Icons.Default.Star)
+    object Cart : Screen("cart", "Cart", null)
     object Meals : Screen("meals", "Meals", null)
 
     object RecipeDetail : Screen("recipe_detail/{id}", "Detail", null) {
@@ -150,6 +151,14 @@ fun AppNavigation(navController: NavHostController) {
             // 🔹 Nutrition
             composable(Screen.Nutrition.route) {
                 NutritionScreen(viewModel = mainViewModel)
+            }
+
+            // 🔹 Cart
+            composable(Screen.Cart.route) {
+                CartScreen(
+                    navController = navController,
+                    viewModel = mainViewModel
+                )
             }
 
             // 🔹 Meals (configuración de comidas)

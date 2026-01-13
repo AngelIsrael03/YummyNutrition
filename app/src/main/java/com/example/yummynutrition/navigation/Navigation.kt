@@ -21,6 +21,7 @@ import com.example.yummynutrition.ui.theme.screens.RecipesScreen
 import com.example.yummynutrition.ui.theme.screens.NutritionScreen
 import com.example.yummynutrition.ui.theme.screens.RecipeDetailScreen
 import com.example.yummynutrition.ui.theme.screens.SplashScreen
+import com.example.yummynutrition.ui.theme.screens.WelcomeScreen
 
 // 🔹 Definición de rutas
 sealed class Screen(
@@ -29,11 +30,10 @@ sealed class Screen(
     val icon: ImageVector?
 ) {
     object Splash : Screen("splash", "", null)
-
+    object Welcome : Screen("welcome", "", null)
     object Home : Screen("home", "Home", Icons.Default.Home)
     object Recipes : Screen("recipes", "Recipes", Icons.Default.Search)
     object Nutrition : Screen("nutrition", "Nutrition", Icons.Default.Star)
-
     object Meals : Screen("meals", "Meals", null)
 
     object RecipeDetail : Screen("recipe_detail/{id}", "Detail", null) {
@@ -92,11 +92,20 @@ fun AppNavigation(navController: NavHostController) {
             modifier = Modifier.padding(padding)
         ) {
 
-            // 🔹 Splash
+            // 🔹 Splash (Logo)
             composable(Screen.Splash.route) {
                 SplashScreen {
-                    navController.navigate(Screen.Home.route) {
+                    navController.navigate(Screen.Welcome.route) {
                         popUpTo(Screen.Splash.route) { inclusive = true }
+                    }
+                }
+            }
+
+            // 🔹 Welcome (Bienvenida)
+            composable(Screen.Welcome.route) {
+                WelcomeScreen {
+                    navController.navigate(Screen.Home.route) {
+                        popUpTo(Screen.Welcome.route) { inclusive = true }
                     }
                 }
             }

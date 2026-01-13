@@ -3,6 +3,8 @@ package com.example.yummynutrition.ui.theme.screens
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Restaurant
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -24,7 +26,7 @@ fun HomeScreen(
     navController: NavController,
     viewModel: MainViewModel = viewModel()
 ) {
-    // --- Nombre guardado (DataStore) ---
+    // --- Nombre guardado ---
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
@@ -33,144 +35,157 @@ fun HomeScreen(
     var nameInput by remember { mutableStateOf("") }
 
     LaunchedEffect(Unit) {
-        if (savedName.isBlank()) {
-            showNameDialog = true
-        }
+        if (savedName.isBlank()) showNameDialog = true
     }
 
-
-    // --- Tu lógica actual (NO la tocamos) ---
+    // --- Datos nutricionales ---
     val food: FoodItem? by viewModel.nutrition.collectAsState()
 
-    val foodName = food?.description?.uppercase() ?: "No food selected"
-
+    val foodName = food?.description?.uppercase() ?: "NO FOOD SELECTED"
     val totalCalories = food.nutrientValue("Energy").toInt()
     val protein = food.nutrientValue("Protein").toInt()
     val carbs = food.nutrientValue("Carbohydrate").toInt()
     val fats = food.nutrientValue("Total lipid", "Fat").toInt()
 
-    // --- UI ---
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(md_theme_dark_background)
-            .padding(20.dp)
+            .padding(20.dp),
+        verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
 
-        // ✅ Saludo
+        // 🔥 HEADER
         Text(
             text = if (savedName.isNotBlank()) "Hola, $savedName 👋" else "Hola 👋",
-            color = Color.White,
-            style = MaterialTheme.typography.headlineMedium
-        )
-
-        Spacer(modifier = Modifier.height(10.dp))
-
-        Text(
-            text = "Today’s Nutrition Summary",
-            color = Color.White,
-            style = MaterialTheme.typography.headlineLarge
+            style = MaterialTheme.typography.headlineMedium,
+            color = Color.White
         )
 
         Text(
-            text = foodName,
-            style = MaterialTheme.typography.titleMedium,
+            text = "Tu resumen nutricional de hoy",
             color = Color.LightGray
         )
 
-        Spacer(modifier = Modifier.height(24.dp))
-
+        // 🔥 TARJETA PRINCIPAL
         Card(
             colors = CardDefaults.cardColors(containerColor = Color(0xFF1A1A1A)),
-            shape = RoundedCornerShape(24.dp),
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(150.dp)
+            shape = RoundedCornerShape(28.dp),
+            modifier = Modifier.fillMaxWidth()
         ) {
             Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(20.dp),
-                verticalArrangement = Arrangement.Center
+                modifier = Modifier.padding(24.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Text("Total Calories", color = Color(0xFFCCCCCC))
+                Text("CALORÍAS TOTALES", color = Color(0xFFB0B0B0))
                 Text(
                     "$totalCalories kcal",
-                    color = md_theme_dark_primary,
-                    style = MaterialTheme.typography.headlineLarge
+                    style = MaterialTheme.typography.headlineLarge,
+                    color = md_theme_dark_primary
+                )
+                Text(
+                    foodName,
+                    color = Color.LightGray,
+                    style = MaterialTheme.typography.labelLarge
                 )
             }
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
+        // 🔥 MACROS
+        Card(
+            colors = CardDefaults.cardColors(containerColor = Color(0xFF151515)),
+            shape = RoundedCornerShape(24.dp),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Column(
+                modifier = Modifier.padding(20.dp),
+                verticalArrangement = Arrangement.spacedBy(14.dp)
+            ) {
+                Text(
+                    "Macronutrientes",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = Color.White
+                )
 
-        Text(
-            "Macronutrient Breakdown",
-            color = Color.White,
-            style = MaterialTheme.typography.titleMedium
-        )
+                MacroBar("Proteína", protein)
+                MacroBar("Carbohidratos", carbs)
+                MacroBar("Grasas", fats)
+            }
+        }
 
-        Spacer(modifier = Modifier.height(12.dp))
+        // 🔥 CONFIGURAR COMIDAS
+        Card(
+            onClick = { navController.navigate(Screen.Meals.route) },
+            shape = RoundedCornerShape(22.dp),
+            colors = CardDefaults.cardColors(containerColor = md_theme_dark_primary),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Row(
+                modifier = Modifier.padding(18.dp),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Icon(
+                    Icons.Default.Restaurant,
+                    contentDescription = null,
+                    tint = Color.Black
+                )
+                Text(
+                    "Configurar mis comidas",
+                    color = Color.Black,
+                    style = MaterialTheme.typography.titleMedium
+                )
+            }
+        }
 
-        MacroBar("Protein", protein)
-        MacroBar("Carbs", carbs)
-        MacroBar("Fats", fats)
-
-        Spacer(modifier = Modifier.height(24.dp))
-
+        // 🔥 RECETAS
         Button(
             onClick = { navController.navigate(Screen.Recipes.route) },
-            colors = ButtonDefaults.buttonColors(containerColor = md_theme_dark_primary),
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2A2A2A)),
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(14.dp)
+            shape = RoundedCornerShape(16.dp)
         ) {
-            Text("Explore Healthy Recipes", color = Color.Black)
+            Text("Explorar recetas saludables", color = Color.White)
         }
     }
 
-    // ✅ Diálogo (solo si no hay nombre guardado)
+    // 🔹 Diálogo nombre
     if (showNameDialog) {
         val clean = nameInput.trim()
 
         AlertDialog(
-            onDismissRequest = { /* no cerrar tocando fuera */ },
+            onDismissRequest = {},
             title = { Text("¿Cómo te llamas?") },
             text = {
                 OutlinedTextField(
                     value = nameInput,
                     onValueChange = { nameInput = it },
-                    singleLine = true,
-                    label = { Text("Nombre") }
+                    label = { Text("Nombre") },
+                    singleLine = true
                 )
             },
             confirmButton = {
                 Button(
                     onClick = {
-                        showNameDialog = false   // 👈 cerrar primero
-
-                        scope.launch {
-                            UserPrefs.setName(context, clean)
-                        }
+                        showNameDialog = false
+                        scope.launch { UserPrefs.setName(context, clean) }
                     },
                     enabled = clean.isNotBlank()
                 ) {
                     Text("Guardar")
                 }
-
             }
         )
     }
 }
 
-// Home screen that displays the daily nutrition summary
+// 🔹 MacroBar
 @Composable
 fun MacroBar(label: String, value: Int) {
     val progress = (value / 200f).coerceIn(0f, 1f)
 
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Text(label, color = Color(0xFFEFEFEF))
-        Spacer(modifier = Modifier.height(8.dp))
-
+    Column {
+        Text(label, color = Color(0xFFECECEC))
+        Spacer(modifier = Modifier.height(6.dp))
         Box(
             modifier = Modifier
                 .height(14.dp)
@@ -184,13 +199,13 @@ fun MacroBar(label: String, value: Int) {
                     .background(md_theme_dark_primary, RoundedCornerShape(12.dp))
             )
         }
-        Spacer(modifier = Modifier.height(12.dp))
     }
 }
 
+// 🔹 Helper
 private fun FoodItem?.nutrientValue(vararg keys: String): Double {
     val item = this ?: return 0.0
     return item.foodNutrients
-        .firstOrNull { n -> keys.any { key -> n.nutrientName.contains(key, ignoreCase = true) } }
+        .firstOrNull { n -> keys.any { key -> n.nutrientName.contains(key, true) } }
         ?.value ?: 0.0
 }

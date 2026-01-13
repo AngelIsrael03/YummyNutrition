@@ -5,38 +5,36 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material3.Icon
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
-import com.example.yummynutrition.ui.theme.screens.WelcomeScreen
+import androidx.navigation.compose.*
+import com.example.yummynutrition.ui.theme.screens.*
+import com.example.yummynutrition.viewmodel.MainViewModel
+import com.example.yummynutrition.ui.theme.MealsScreen
 import com.example.yummynutrition.ui.theme.screens.HomeScreen
+import com.example.yummynutrition.ui.theme.screens.RecipesScreen
 import com.example.yummynutrition.ui.theme.screens.NutritionScreen
 import com.example.yummynutrition.ui.theme.screens.RecipeDetailScreen
-import com.example.yummynutrition.ui.theme.screens.RecipesScreen
-import com.example.yummynutrition.viewmodel.MainViewModel
+import com.example.yummynutrition.ui.theme.screens.SplashScreen
 
+// 🔹 Definición de rutas
 sealed class Screen(
     val route: String,
     val label: String,
     val icon: ImageVector?
 ) {
-    object Welcome : Screen("welcome", "Welcome", null)
+    object Splash : Screen("splash", "", null)
 
     object Home : Screen("home", "Home", Icons.Default.Home)
     object Recipes : Screen("recipes", "Recipes", Icons.Default.Search)
     object Nutrition : Screen("nutrition", "Nutrition", Icons.Default.Star)
 
+    object Meals : Screen("meals", "Meals", null)
 
     object RecipeDetail : Screen("recipe_detail/{id}", "Detail", null) {
         fun createRoute(id: String) = "recipe_detail/$id"
@@ -46,10 +44,11 @@ sealed class Screen(
 @Composable
 fun AppNavigation(navController: NavHostController) {
 
-    // ✅ Un solo ViewModel compartido por todas las pantallas
+    // ✅ ViewModel compartido
     val mainViewModel: MainViewModel = viewModel()
 
-    val items = listOf(
+    // 🔹 Pantallas con BottomBar
+    val bottomBarScreens = listOf(
         Screen.Home,
         Screen.Recipes,
         Screen.Nutrition
@@ -58,14 +57,13 @@ fun AppNavigation(navController: NavHostController) {
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = backStackEntry?.destination?.route
 
-    // ✅ NO mostrar BottomBar en detalle
-    val showBottomBar = items.any { it.route == currentRoute }
+    val showBottomBar = bottomBarScreens.any { it.route == currentRoute }
 
     Scaffold(
         bottomBar = {
             if (showBottomBar) {
                 NavigationBar {
-                    items.forEach { screen ->
+                    bottomBarScreens.forEach { screen ->
                         NavigationBarItem(
                             selected = currentRoute == screen.route,
                             onClick = {
@@ -76,7 +74,9 @@ fun AppNavigation(navController: NavHostController) {
                                 }
                             },
                             icon = {
-                                screen.icon?.let { Icon(it, contentDescription = screen.label) }
+                                screen.icon?.let {
+                                    Icon(it, contentDescription = screen.label)
+                                }
                             },
                             label = { Text(screen.label) }
                         )
@@ -88,26 +88,46 @@ fun AppNavigation(navController: NavHostController) {
 
         NavHost(
             navController = navController,
-            startDestination = Screen.Welcome.route,
+            startDestination = Screen.Splash.route,
             modifier = Modifier.padding(padding)
         ) {
 
-            composable(Screen.Welcome.route) {
-                WelcomeScreen(navController = navController)
+            // 🔹 Splash
+            composable(Screen.Splash.route) {
+                SplashScreen {
+                    navController.navigate(Screen.Home.route) {
+                        popUpTo(Screen.Splash.route) { inclusive = true }
+                    }
+                }
             }
 
+            // 🔹 Home
             composable(Screen.Home.route) {
-                HomeScreen(navController = navController, viewModel = mainViewModel)
+                HomeScreen(
+                    navController = navController,
+                    viewModel = mainViewModel
+                )
             }
 
+            // 🔹 Recipes
             composable(Screen.Recipes.route) {
-                RecipesScreen(navController = navController, viewModel = mainViewModel)
+                RecipesScreen(
+                    navController = navController,
+                    viewModel = mainViewModel
+                )
             }
 
+            // 🔹 Nutrition
             composable(Screen.Nutrition.route) {
                 NutritionScreen(viewModel = mainViewModel)
             }
 
+            // 🔹 Meals (configuración de comidas)
+            composable(Screen.Meals.route) {
+                MealsScreen()
+            }
+
+            // 🔹 Detalle receta
             composable(Screen.RecipeDetail.route) { backStack ->
                 val id = backStack.arguments?.getString("id") ?: ""
                 RecipeDetailScreen(
@@ -117,7 +137,5 @@ fun AppNavigation(navController: NavHostController) {
                 )
             }
         }
-
     }
 }
-
